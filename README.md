@@ -16,3 +16,4 @@
 - https://www.rapid7.com/blog/post/2016/08/04/build-a-simple-cli-tool-with-golang/
 - https://stackoverflow.com/questions/9655164/regex-ignore-case-sensitivity
 - https://www.geeksforgeeks.org/golang-checking-the-byte-of-slice-for-specified-regular-expression/
+- https://medium.com/@nsimaria_83213/golang-command-line-arguments-from-zero-to-hero-a4686fd34758
