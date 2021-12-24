@@ -17,3 +17,7 @@
 - https://stackoverflow.com/questions/9655164/regex-ignore-case-sensitivity
 - https://www.geeksforgeeks.org/golang-checking-the-byte-of-slice-for-specified-regular-expression/
 - https://medium.com/@nsimaria_83213/golang-command-line-arguments-from-zero-to-hero-a4686fd34758
+- https://medium.com/@nsimaria_83213/golang-command-line-arguments-from-zero-to-hero-a4686fd34758
+- https://stackoverflow.com/questions/20895552/how-can-i-read-from-standard-input-in-the-console
+- https://www.geeksforgeeks.org/cut-command-linux-examples/
+- https://stackoverflow.com/questions/9030680/list-of-currently-running-process-in-go

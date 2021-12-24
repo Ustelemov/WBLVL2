@@ -123,6 +123,7 @@ func main() {
 
 		scanner.Scan()
 		text := scanner.Text()
+
 		lines = strings.Split(text, "\n")
 
 		delimed := delimStrings(lines, *delim)
