@@ -21,3 +21,6 @@
 - https://stackoverflow.com/questions/20895552/how-can-i-read-from-standard-input-in-the-console
 - https://www.geeksforgeeks.org/cut-command-linux-examples/
 - https://stackoverflow.com/questions/9030680/list-of-currently-running-process-in-go
+- https://stackoverflow.com/questions/10781516/how-to-pipe-several-commands-in-go
+- https://stackoverflow.com/questions/9030680/list-of-currently-running-process-in-go
+- https://sj14.gitlab.io/post/2018/07-01-go-unix-shell/
