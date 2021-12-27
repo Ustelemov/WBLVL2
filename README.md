@@ -24,3 +24,6 @@
 - https://stackoverflow.com/questions/10781516/how-to-pipe-several-commands-in-go
 - https://stackoverflow.com/questions/9030680/list-of-currently-running-process-in-go
 - https://sj14.gitlab.io/post/2018/07-01-go-unix-shell/
+- https://stackoverflow.com/questions/42435064/tcp-send-stdout-to-client-and-read-stdin-from-client
+- https://dev-gang.ru/article/golang-prostoy-server-tcp-i-tcp-klient/
+- https://stackoverflow.com/questions/44974984/how-to-check-a-net-conn-is-closed

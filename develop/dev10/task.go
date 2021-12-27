@@ -81,8 +81,16 @@ func main() {
 
 		//Если соединение закрыто
 		if n == 0 || err == io.EOF {
+			fmt.Println("Connection closed")
 			break
 		}
+
+		//Если другая ошибка
+		if err != nil {
+			fmt.Printf("Error while read: %s\n", err)
+			break
+		}
+
 		fmt.Fprintln(os.Stdout, string(b))
 	}
 	fmt.Println() //отступ в конце для красоты
