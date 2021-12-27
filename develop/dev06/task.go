@@ -121,9 +121,12 @@ func main() {
 	for {
 		lines := *new([]string) // каждый цикл обновляем ссылку
 
-		scanner.Scan()
-		text := scanner.Text()
+		ok := scanner.Scan()
+		if !ok && scanner.Err() == nil {
+			break
+		}
 
+		text := scanner.Text()
 		lines = strings.Split(text, "\n")
 
 		delimed := delimStrings(lines, *delim)

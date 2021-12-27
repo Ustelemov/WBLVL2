@@ -1,11 +1,11 @@
 package main
 
 import (
-	"bytes"
+	"bufio"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
+	"os"
 	"regexp"
 )
 
@@ -24,101 +24,33 @@ import (
 Программа должна проходить все тесты. Код должен проходить проверки go vet и golint.
 */
 
-//fileBytes тип представляет собой содержимое текстового файла
-type fileBytes [][]byte
-
-//readFileBytes считывает данные из текстовых файлов.
-//Принимает набор строк - путей к файлам, возвращает fileBytes и ошибку считывания
-func readFilesBytes(filepaths ...string) (fileBytes, error) {
-
-	lines := make([][]byte, 0)
-
-	for _, path := range filepaths {
-		content, err := ioutil.ReadFile(path)
-
-		if err != nil {
-			return nil, err
-		}
-
-		lines = append(lines, bytes.Split(content, []byte{'\n'})...)
-
-	}
-	res := fileBytes(lines)
-	return res, nil
+//isMatch проверяет соответствие слайса байт регулярному выражению (паттерну).
+//Принимает слайс байт и паттерн.
+//Возвращает результат соответствия и ошибку матчинга.
+func isMatch(b []byte, pattern string) (bool, error) {
+	return regexp.Match(pattern, b)
 }
 
-//getMatchResultIndexes возвращает индексы строк (слайсов байт) в fileBytes,
-//удовлетворяющих паттерну (первый слайс), неудовлятворяющих паттерну (второй слайс)
-//и ошибку матчинга в regexp
-func getMatchResultIndexes(fb fileBytes, pattern string) (match []int, nomatch []int, err error) {
-	for i := 0; i < len(fb); i++ {
-		var ok bool
-		ok, err = regexp.Match(pattern, fb[i])
-
-		if err != nil {
-			match, nomatch = nil, nil
-			return
-		}
-		if ok {
-			match = append(match, i)
-		} else {
-			nomatch = append(nomatch, i)
-		}
+//appendBuffer добавляет в буфер последних элементов новый элемент
+//(если буфер уже заполнен добавляемый элемент "выбивает" самый первый элемент)
+//Принимает ссылку на слайс строк-cтруктур (модифицирует его в ходе выполнения)
+//и строку, которую следует добавить.
+func appendBuffer(buffer *[]line, el line) {
+	if cap(*buffer) == 0 {
+		return
 	}
-
-	return
+	if len(*buffer) < cap(*buffer) {
+		*buffer = append(*buffer, el)
+	} else {
+		*buffer = append((*buffer)[1:len(*buffer)], el)
+	}
 }
 
-//addContext добавляет к каждому индексу дополнительное количество
-//before индексов до него и after индексов после него.
-//Принимает: слайс индексов для которых будет добавляться контекст,
-//длину (количество элементов) fileBytes, количество before индексов,
-//количество after индексов. Возвращает: слайс индексов с контекстными индексами.
-func addContext(in []int, lenfb int, before, after int) []int {
-	cap := len(in) + len(in)*(before+after)
-	result := make([]int, 0, cap)
-	m := make(map[int]bool)
-
-	for _, el := range in {
-		start := el - before
-		if start < 0 {
-			start = 0
-		}
-		end := el + after
-		if end >= lenfb {
-			end = lenfb - 1
-		}
-		for j := start; j <= end; j++ {
-			if !m[j] {
-				result = append(result, j)
-				m[j] = true
-			}
-		}
-
-	}
-	return result
-}
-
-//printFB распечатывает строки fileBytes, индексы которых совпадают
-//с индексами входного слайса.
-//Принимает: fileBytes, слайс индексов, флаг numOnly - требуется ли
-//печатать только индексы строк, а не их значения.
-func printFB(fb fileBytes, indxs []int, numOnly bool) {
-	//создадим вспомогательную мапу для дальнейшей проверки вхождения индекса
-	m := make(map[int]bool)
-	for i := range indxs {
-		m[indxs[i]] = true
-	}
-
-	for i := 0; i < len(fb); i++ {
-		if m[i] {
-			if numOnly {
-				fmt.Println(i + 1)
-			} else {
-				fmt.Println(string(fb[i]))
-			}
-		}
-	}
+//структура line определяет текстовую строку в файле\консоле
+//содержит саму строку и её порядковый номер
+type line struct {
+	text string
+	num  int
 }
 
 func main() {
@@ -130,24 +62,25 @@ func main() {
 	ignore := flag.Bool("i", false, "Ignore case of matching pattern")
 	invert := flag.Bool("v", false, "Exclude string if matching")
 	fixed := flag.Bool("F", false, "Exact equality to string not pattern")
-	lineNum := flag.Bool("n", false, "Print lines indexes")
+	numering := flag.Bool("n", false, "Print lines indexes")
 
 	flag.Parse()
 
-	//Проверяем наличие паттерна и имени хотя бы одного файла, как аргумента
+	//Проверяем наличие паттерна и имени хотя бы одного файла (или -), как аргумента
 	if flag.NArg() < 2 {
-		log.Fatalf("File name and pattern required")
+		log.Fatalf("File name or - for console input and pattern required")
 	}
 
 	args := flag.Args()
 	pattern := args[0]
 
-	fileNames := args[1:]
+	fileName := args[1]
 
-	fb, err := readFilesBytes(fileNames...)
-
-	if err != nil {
-		log.Fatal(err.Error())
+	//Context определяет after и before - колизию c разными значениями
+	//устраняем, строго заполняя after и before значением из context
+	if *context != 0 {
+		*after = *context
+		*before = *context
 	}
 
 	//Если требуется игнорировать case, изменим регулярное выражение
@@ -160,33 +93,94 @@ func main() {
 		pattern = "^" + pattern + "$"
 	}
 
-	matchIndx, noMatchIndx, err := getMatchResultIndexes(fb, pattern)
+	isConsole := fileName == "-"
+	var scanner *bufio.Scanner
 
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	//Context определяет after и before - колизию c разными значениями
-	//устраняем, строго заполняя after и before значением из context
-	if *context != 0 {
-		*after = *context
-		*before = *context
-	}
-
-	var printingIndxs []int
-
-	if *invert {
-		printingIndxs = addContext(noMatchIndx, len(fb), int(*before), int(*after))
+	//Зададим источник данных: консоль или файл
+	if isConsole {
+		scanner = bufio.NewScanner(os.Stdin)
 	} else {
-		printingIndxs = addContext(matchIndx, len(fb), int(*before), int(*after))
+		file, err := os.Open(fileName)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer file.Close()
+		scanner = bufio.NewScanner(file)
 	}
 
-	//Если требуется вывести только количество строк
-	if *count {
-		c := len(printingIndxs)
-		fmt.Println(c)
-		return
-	}
+	//создадим буфер с емкостью before
+	bufferBefore := make([]line, 0, *before)
+	//строк осталось вывести после данной
+	afterCount := 0
+	//номер строки (начнем с 1)
+	lineNumber := 0
+	//количество совпадений
+	matches := 0
 
-	printFB(fb, printingIndxs, *lineNum)
+	//map, сохраняющий номера напечатанных строки с true
+	printedMap := make(map[line]bool, 0)
+
+	for {
+		lineNumber++
+		flag := scanner.Scan()
+		text := scanner.Text()
+
+		if err := scanner.Err(); err != nil {
+			log.Fatal(err)
+		}
+
+		//EOF
+		if !flag {
+			break
+		}
+
+		ok, err := isMatch([]byte(text), pattern)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		//XOR - изменим значение наоборот, если требуется инвертировать
+		ok = ok != *invert
+		//строки, которые потребуется напечатать в данные проход
+		//сюда попадут ещё before строки
+		linesToPrint := make([]line, 0)
+
+		if ok {
+			matches++
+			//добавим нужные элементы перед
+			linesToPrint = append(linesToPrint, bufferBefore...)
+			//обновим, так как нашли матчинг
+			bufferBefore = make([]line, 0, *before)
+			afterCount = int(*after)
+
+			linesToPrint = append(linesToPrint, line{text: text, num: lineNumber})
+		} else {
+			//если для последнего матчинга напечатали не все строки после,
+			//то печатаем и уменьшаем счетчик
+			if afterCount != 0 {
+				afterCount--
+				linesToPrint = append(linesToPrint, line{text: text, num: lineNumber})
+			}
+			//запишим строку и before буфер
+			appendBuffer(&bufferBefore, line{text: text, num: lineNumber})
+		}
+
+		if isConsole && *count { //в консоле - результат пустой
+			fmt.Println("")
+		} else if !*count { //если не файл с -c флагом
+			for _, v := range linesToPrint {
+				if !printedMap[v] { //если строку ещё не печатали
+					printedMap[v] = true
+					if *numering {
+						fmt.Fprintf(os.Stdout, "%d:%s\n", v.num, v.text)
+					} else {
+						fmt.Fprintln(os.Stdout, text)
+					}
+				}
+			}
+		}
+	}
+	if !isConsole && *count {
+		fmt.Fprintln(os.Stdout, matches)
+	}
 }

@@ -7,42 +7,32 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const filePath = "test.txt"
-
-func TestReadFilesBytes(t *testing.T) {
-	_, err := readFilesBytes(filePath)
-	assert.Nil(t, err)
-}
-
-func TestMatchResultIndexes(t *testing.T) {
-	input := [][]byte{
-		[]byte("qweasd"),
-		[]byte("zxcasdqwwe"),
-		[]byte("qwsfsde"),
-		[]byte("123rqwe"),
-	}
-
-	expectedMatch := []int{0, 3}
-	expectedNoMatch := []int{1, 2}
-
+func TestIsMatchOk(t *testing.T) {
+	input := []byte("qweasd")
 	pattern := "qwe"
 
-	match, nomatch, err := getMatchResultIndexes(fileBytes(input), pattern)
-
+	ok, err := isMatch(input, pattern)
 	assert.Nil(t, err)
-	assert.True(t, reflect.DeepEqual(expectedMatch, match))
-	assert.True(t, reflect.DeepEqual(expectedNoMatch, nomatch))
+	assert.True(t, ok)
+
 }
 
-func TestAddContext(t *testing.T) {
-	input := []int{3, 9}
-	lenfb := 10
-	before, after := 2, 2
+func TestIsMatchNotOK(t *testing.T) {
+	input := []byte("qweasd")
+	pattern := "qweee"
 
-	expect := []int{1, 2, 3, 4, 5, 7, 8, 9}
+	ok, err := isMatch(input, pattern)
+	assert.Nil(t, err)
+	assert.False(t, ok)
+}
 
-	result := addContext(input, lenfb, before, after)
+func TestAppendBuffer(t *testing.T) {
+	buf := make([]line, 0, 2)
+	expected := []line{{"3", 3}, {"4", 4}}
+	appendBuffer(&buf, line{"1", 1})
+	appendBuffer(&buf, line{"2", 2})
+	appendBuffer(&buf, line{"3", 3})
+	appendBuffer(&buf, line{"4", 4})
 
-	assert.True(t, reflect.DeepEqual(expect, result))
-
+	assert.True(t, reflect.DeepEqual(expected, buf))
 }
