@@ -27,3 +27,12 @@
 - https://stackoverflow.com/questions/42435064/tcp-send-stdout-to-client-and-read-stdin-from-client
 - https://dev-gang.ru/article/golang-prostoy-server-tcp-i-tcp-klient/
 - https://stackoverflow.com/questions/44974984/how-to-check-a-net-conn-is-closed
+- https://metanit.com/go/tutorial/9.1.php
+- https://gist.github.com/elico/3eecebd87d4bc714c94066a1783d4c9c
+- https://stackoverflow.com/questions/15407719/in-gos-http-package-how-do-i-get-the-query-string-on-a-post-request
+- https://stackoverflow.com/questions/40096750/how-to-set-http-status-code-on-http-responsewriter
+- https://stackoverflow.com/questions/40442846/concurrent-access-to-maps-with-range-in-go
+- https://stackoverflow.com/questions/31622052/how-to-serve-up-a-json-response-using-go
+- https://stackoverflow.com/questions/55093676/checking-if-current-time-is-in-a-given-interval-golang
+- https://stackoverflow.com/questions/18624177/go-unix-timestamp-for-first-day-of-the-week-from-iso-year-week
+- https://tutorialedge.net/golang/creating-restful-api-with-golang/
