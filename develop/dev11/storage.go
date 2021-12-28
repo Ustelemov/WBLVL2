@@ -27,13 +27,13 @@ type Event struct {
 type EventStore struct {
 	m      map[int]Event
 	mutex  sync.RWMutex
-	nextId int
+	nextID int
 }
 
 //NewEventStore конструктор для EventStore.
 //Возвращает: ссылку на созданный EventStore.
 func NewEventStore() *EventStore {
-	return &EventStore{m: make(map[int]Event, 0), nextId: 1}
+	return &EventStore{m: make(map[int]Event, 0), nextID: 1}
 }
 
 //Save сохраняет новый Event в хранилище, присваивая ему порядковый id.
@@ -44,10 +44,10 @@ func (store *EventStore) Save(text string, date time.Time) error {
 	store.mutex.Lock()
 	defer store.mutex.Unlock()
 
-	event := Event{ID: store.nextId, Text: text, Date: JSONTime(date)}
+	event := Event{ID: store.nextID, Text: text, Date: JSONTime(date)}
 
-	store.m[store.nextId] = event
-	store.nextId = store.nextId + 1
+	store.m[store.nextID] = event
+	store.nextID = store.nextID + 1
 
 	return nil
 }

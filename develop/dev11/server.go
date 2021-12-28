@@ -6,10 +6,12 @@ import (
 	"time"
 )
 
+//Server тип для работы с http.Server
 type Server struct {
 	httpServer *http.Server
 }
 
+//NewServer конструктор, возвращающий ссылку на Server
 func NewServer() *Server {
 	return &Server{}
 }
